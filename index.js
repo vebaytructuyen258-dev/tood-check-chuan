@@ -115,7 +115,8 @@ try {
    
                 
       browserContext = await chromium.launchPersistentContext(profileDir, {
-    headless: true
+    headless: TRUS
+    
 });
 
 
