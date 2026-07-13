@@ -1,0 +1,31 @@
+module.exports = {
+    generatePath: function(startX, startY, endX, endY, steps = 15) {
+        const points = [];
+        const controlX = startX + (endX - startX) * 0.5 + (Math.random() - 0.5) * 100;
+        const controlY = startY + (endY - startY) * 0.5 + (Math.random() - 0.5) * 100;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = Math.round((1 - t) * (1 - t) * startX + 2 * (1 - t) * t * controlX + t * t * endX);
+            const y = Math.round((1 - t) * (1 - t) * startY + 2 * (1 - t) * t * controlY + t * t * endY);
+            points.push({ x, y });
+        }
+        return points;
+    },
+    inject: async function(page) {
+        await page.addInitScript(() => {
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 });
+            Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+            Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+            Object.defineProperty(navigator, 'mediaDevices', { get: () => undefined });
+            Object.defineProperty(screen, 'width', { get: () => 1920 });
+            Object.defineProperty(screen, 'height', { get: () => 1080 });
+            const getParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function(parameter) {
+                if (parameter === 37445) return 'Google Inc. (NVIDIA)';
+                if (parameter === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)';
+                return getParameter.apply(this, arguments);
+            };
+        });
+    }
+};
